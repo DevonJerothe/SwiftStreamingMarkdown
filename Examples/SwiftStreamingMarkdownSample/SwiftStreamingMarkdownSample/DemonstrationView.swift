@@ -1,9 +1,7 @@
 //
-//  DemonstrationView.swift
-//  SwiftStreamingMarkdownSample
+//  Copyright © 2025 Microsoft. All rights reserved.
 //
-//  Created by Jun Yan on 5/26/26.
-//
+
 import SwiftUI
 import SwiftStreamingMarkdown
 

@@ -1,3 +1,7 @@
+//
+//  Copyright © 2025 Microsoft. All rights reserved.
+//
+
 import Foundation
 import SwiftStreamingMarkdown
 import SwiftUI
