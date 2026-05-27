@@ -38,17 +38,13 @@ public enum Typography: CaseIterable, Sendable {
   case extraSmall
   case extraSmallItalic
 
-  case citationDay
-  case citationNight
   case code
   case tripleExtraSmallCustom450
 
   /// The UIFont instance of the typography.
   public var uiFont: UIFont {
     return switch self {
-    case .citationDay: UIFonts.citationDay
-    case .citationNight: UIFonts.citationNight
-    case .tripleExtraSmallCustom450: UIFonts.tripleExtraSmallCustom450
+    case .tripleExtraSmallCustom450: Self.systemFont(size: 10.0, weight: .regular)
     case .code: Self.systemMonospacedFont(size: 15.0, weight: .regular)
 
     case .extraLargeStrong: Self.systemFont(size: 28.0, weight: .semibold)
@@ -105,7 +101,6 @@ public enum Typography: CaseIterable, Sendable {
   /// Line height preferred by design system, may be different from the font's intrinsic line height.
   public var preferredLineHeight: CGFloat {
     return switch self {
-    case .citationDay, .citationNight: 22.0
     case .code: 20.0
     case .tripleExtraSmallCustom450: 14.0
 
@@ -155,7 +150,7 @@ public enum Typography: CaseIterable, Sendable {
          .baseStrong, .baseStrongItalic,
          .smallStrong, .smallStrongItalic,
          .extraSmallStrong, .extraSmallStrongItalic,
-         .citationDay, .citationNight, .code, .tripleExtraSmallCustom450: self
+         .code, .tripleExtraSmallCustom450: self
     }
   }
 
@@ -186,7 +181,7 @@ public enum Typography: CaseIterable, Sendable {
          .baseItalic, .baseStrongItalic,
          .smallItalic, .smallStrongItalic,
          .extraSmallItalic, .extraSmallStrongItalic,
-         .citationDay, .citationNight, .code, .tripleExtraSmallCustom450: self
+         .code, .tripleExtraSmallCustom450: self
     }
   }
 }
