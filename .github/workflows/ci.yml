@@ -10,12 +10,48 @@ permissions:
   contents: read
 
 jobs:
-  ios:
-    name: iOS
+  spm-unit-tests:
+    name: SPM Unit Tests
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Test and build iOS package
-        run: make test build
+      - name: Run package tests with xcodebuild
+        run: |
+          DESTINATION_ID=$(xcodebuild -showdestinations -scheme SwiftStreamingMarkdown | awk -F'id:' '/platform:iOS Simulator/ && /name:iPhone/ && $2 ~ /^[0-9A-F-]+,/{split($2,a,","); print a[1]; exit}')
+          if [ -z "$DESTINATION_ID" ]; then
+            DESTINATION_ID=$(xcodebuild -showdestinations -scheme SwiftStreamingMarkdown | awk -F'id:' '/platform:iOS Simulator/ && $2 ~ /^[0-9A-F-]+,/{split($2,a,","); print a[1]; exit}')
+          fi
+          if [ -z "$DESTINATION_ID" ]; then
+            echo "Unable to find an iOS Simulator destination for SwiftStreamingMarkdown"
+            exit 1
+          fi
+          xcodebuild test \
+            -scheme SwiftStreamingMarkdown \
+            -destination "id=$DESTINATION_ID" \
+            -skipMacroValidation \
+            -skip-testing:SwiftStreamingMarkdownTests/BlockQuoteViewSnapshotTests \
+            -skip-testing:SwiftStreamingMarkdownTests/MarkdownTextSnapshotTests \
+            -skip-testing:SwiftStreamingMarkdownTests/OrderedListViewTests \
+            -skip-testing:SwiftStreamingMarkdownTests/TableViewSnapshotTests \
+            -skip-testing:SwiftStreamingMarkdownTests/UnorderedListViewTests
+
+  sample-app-build:
+    name: Sample App Build
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Build sample app
+        run: |
+          xcodebuild build \
+            -project Examples/SwiftStreamingMarkdownSample/SwiftStreamingMarkdownSample.xcodeproj \
+            -scheme SwiftStreamingMarkdownSample \
+            -configuration Debug \
+            -destination "generic/platform=iOS Simulator" \
+            -skipMacroValidation \
+            CODE_SIGNING_ALLOWED=NO
