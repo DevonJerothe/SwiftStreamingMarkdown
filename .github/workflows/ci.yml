@@ -12,7 +12,7 @@ permissions:
 jobs:
   spm-unit-tests:
     name: SPM Unit Tests
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -20,17 +20,9 @@ jobs:
 
       - name: Run package tests with xcodebuild
         run: |
-          DESTINATION_ID=$(xcodebuild -showdestinations -scheme SwiftStreamingMarkdown | awk -F'id:' '/platform:iOS Simulator/ && /name:iPhone/ && $2 ~ /^[0-9A-F-]+,/{split($2,a,","); print a[1]; exit}')
-          if [ -z "$DESTINATION_ID" ]; then
-            DESTINATION_ID=$(xcodebuild -showdestinations -scheme SwiftStreamingMarkdown | awk -F'id:' '/platform:iOS Simulator/ && $2 ~ /^[0-9A-F-]+,/{split($2,a,","); print a[1]; exit}')
-          fi
-          if [ -z "$DESTINATION_ID" ]; then
-            echo "Unable to find an iOS Simulator destination for SwiftStreamingMarkdown"
-            exit 1
-          fi
           xcodebuild test \
             -scheme SwiftStreamingMarkdown \
-            -destination "id=$DESTINATION_ID" \
+            -destination "platform=iOS Simulator,OS=26.4.1,name=iPhone 17" \
             -skipMacroValidation \
             -skip-testing:SwiftStreamingMarkdownTests/BlockQuoteViewSnapshotTests \
             -skip-testing:SwiftStreamingMarkdownTests/MarkdownTextSnapshotTests \
@@ -40,7 +32,7 @@ jobs:
 
   sample-app-build:
     name: Sample App Build
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 30
     steps:
       - name: Checkout
@@ -52,6 +44,6 @@ jobs:
             -project Examples/SwiftStreamingMarkdownSample/SwiftStreamingMarkdownSample.xcodeproj \
             -scheme SwiftStreamingMarkdownSample \
             -configuration Debug \
-            -destination "generic/platform=iOS Simulator" \
+            -destination "platform=iOS Simulator,OS=26.4.1,name=iPhone 17" \
             -skipMacroValidation \
             CODE_SIGNING_ALLOWED=NO
