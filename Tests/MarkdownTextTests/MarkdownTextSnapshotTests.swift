@@ -17,8 +17,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     super.setUp()
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testMarkdownLists_uikit() async throws {
+  func testMarkdownLists_uikit() async throws {
     let text = """
      I found some resources that can help you compare gyms in your neighborhood. Here's a brief overview:
 
@@ -41,8 +40,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testMarkdownWithLatex() async throws {
+  func testMarkdownWithLatex() async throws {
     let text = """
     This is a **test** string _with_ Latex content:
     $$x+2=3$$
@@ -61,8 +59,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testMarkdownWithInlineLatex_uikit() async throws {
+  func testMarkdownWithInlineLatex_uikit() async throws {
     let text = """
     This double integral:
     - Sweeps across a rectangular region from \\( \\boxed{x = 0} \\) to \\( \\pi \\), and \\( y = 1 \\) to \\( e \\)
@@ -79,8 +76,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testMarkdownWithComplexLatex() async throws {
+  func testMarkdownWithComplexLatex() async throws {
     let text = """
     Here are a couple of most famous math formulas
     $$\\boxed {a^2 + b^2 = c^}$$
@@ -114,8 +110,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testLatexWithNewLines() async throws {
+  func testLatexWithNewLines() async throws {
     let text = """
     Here's the most **famous** one:
 
@@ -137,8 +132,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testCompositeLatex() async throws {
+  func testCompositeLatex() async throws {
     let text = """
     ## (1) Ring’s acceleration during the first rebound
 
@@ -165,8 +159,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testLatexWithIndentation() async throws {
+  func testLatexWithIndentation() async throws {
     let text = """
     Here are five widely recognized mathematical equations, each formatted with two spaces after the LaTeX expression before the line break:
     1. **Pythagorean Theorem**
@@ -193,8 +186,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testLatexWithSpecificSymbols() async throws {
+  func testLatexWithSpecificSymbols() async throws {
     let text = """
     \\[
     \\varphi(x) = f(x) - \\big(f(a) + f'(a)(x-a)\\big).
@@ -221,12 +213,9 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testCitations() async throws {
+  func testCitations() async throws {
     let text = """
-    This paragraph contains a regular inline citation [A](http://www.microsoft.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1)
-
-    This paragraph contains a titled inline citation [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://www.microsoft.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationId=987&citationTitle=microsoft.com&citationFullTitle=microsoft.com&chatItemId=chatItemId)
+    This paragraph contains a titled inline citation [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://www.microsoft.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationId=987&citationTitle=microsoft.com&citationFullTitle=microsoft.com&chatItemId=chatItemId). And here are more citations [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://www.microsoft.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationId%3D1%2C2&citationTitle=microsoft.com%20%2B1&citationFullTitle=microsoft.com&chatItemId=chatItemId).
     """
     let document = await parser.parse(text: text)
     let renderables = await RenderableDocument(document: document, config: .default, colorScheme: .light)
@@ -236,8 +225,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testLatexInTable() async throws {
+  func testLatexInTable() async throws {
     let text = """
     | Power (mW) | Calculation                          | Result (dBm) |
     |------------|--------------------------------------|--------------|
@@ -408,9 +396,8 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
 
   // MARK: - BlockQuote Citation Integration Tests
 
-  // [Auto-disabled] Flaky test detected by CI pipeline
   /// Tests that BlockQuote correctly renders attachment citations without showing UUIDs
-  func skip_testBlockQuoteWithAttachmentCitations() async throws {
+  func testBlockQuoteWithAttachmentCitations() async throws {
     let markdown = """
     > This quote contains an attachment citation [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationTitle=Microsoft&citationFullTitle=Microsoft) and regular citation [Google](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1)
     """
@@ -616,8 +603,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     XCTAssertEqual(nestedItalicTypography, Typography.base.boldVariant.italicVariant)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testBlockLatexWithCustomColor() async throws {
+  func testBlockLatexWithCustomColor() async throws {
     let text = """
     Here is a block LaTeX formula:
     $$x^2 + 2x + 3$$
@@ -634,8 +620,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testInlineLatexWithCustomColor() async throws {
+  func testInlineLatexWithCustomColor() async throws {
     let text = """
     The solution is \\(3x^2 + 4x - 5\\) for all values.
     """
@@ -650,8 +635,7 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     assert(view)
   }
 
-  // [Auto-disabled] Real test failure detected by CI pipeline
-  func skip_testMixedLatexWithCustomColor() async throws {
+  func testMixedLatexWithCustomColor() async throws {
     let text = """
     Inline formula \\(E = mc^2\\) and block formula:
     $$a^2 + b^2 = c^2$$

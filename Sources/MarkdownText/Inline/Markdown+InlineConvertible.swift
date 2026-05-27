@@ -181,26 +181,6 @@ extension Markdown.Link: InlineConvertible {
         // Fallback to empty string if we can't extract the title
         return NSMutableAttributedString(string: "")
       } else {
-        // Is a Citation link
-        components.queryItems?.removeAll(
-          where: {
-            $0.name == InlineCitationConstants.citationMarkerQueryParam && $0.value == InlineCitationConstants.citationMarkerValue
-          }
-        )
-        if (components.queryItems ?? []).isEmpty {
-          components.queryItems = nil
-        }
-
-        if let url = components.url {
-          container[.link] = url
-        }
-
-        container[.baselineOffset] = -2
-        if colorScheme == .dark {
-          container[.font] = config.inlineStyle.citationFontNight.uiFont
-        } else {
-          container[.font] = config.inlineStyle.citationFontDay.uiFont
-        }
         return buildAttributedString()
       }
     } else {

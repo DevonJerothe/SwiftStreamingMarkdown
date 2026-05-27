@@ -64,8 +64,6 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
   }
 
   public struct MarkdownInlineTextStyle: Hashable, Sendable {
-    public let citationFontDay: Typography
-    public let citationFontNight: Typography
     public let emphasisTextFont: Typography
     public let boldTextFont: Typography
     public let boldTextColor: UIColor
@@ -77,9 +75,7 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     public let actionLinkUnderlineColor: UIColor
     public let codeUnderlineColor: UIColor
 
-    public init(citationFontDay: Typography, citationFontNight: Typography, emphasisTextFont: Typography, boldTextFont: Typography, boldTextColor: UIColor, linkTextFont: Typography, linkTextColor: UIColor, codeTextFont: Typography, codeTextColor: UIColor, codeBackgroundColor: UIColor, actionLinkUnderlineColor: UIColor, codeUnderlineColor: UIColor) {
-      self.citationFontDay = citationFontDay
-      self.citationFontNight = citationFontNight
+    public init(emphasisTextFont: Typography, boldTextFont: Typography, boldTextColor: UIColor, linkTextFont: Typography, linkTextColor: UIColor, codeTextFont: Typography, codeTextColor: UIColor, codeBackgroundColor: UIColor, actionLinkUnderlineColor: UIColor, codeUnderlineColor: UIColor) {
       self.emphasisTextFont = emphasisTextFont
       self.boldTextFont = boldTextFont
       self.boldTextColor = boldTextColor
@@ -128,8 +124,6 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
       regularTextColor: UIColor(Color.Theme.Foreground.Primary.Primary800)
     ),
     inlineStyle: MarkdownInlineTextStyle = .init(
-      citationFontDay: .citationDay,
-      citationFontNight: .citationNight,
       emphasisTextFont: .baseItalic,
       boldTextFont: .baseStrong,
       boldTextColor: UIColor(Color.Theme.Foreground.Primary.Primary750),
@@ -191,9 +185,7 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     orderedListStyle: .init(textFont: .extraSmall, boldTextFont: .extraSmallStrong, textColor: UIColor(Color.Theme.Foreground.Primary.Primary550)),
     paragraphStyle: .init(textFont: .extraSmall, boldTextFont: .extraSmallStrong, textColor: UIColor(Color.Theme.Foreground.Primary.Primary550)),
     tableStyle: .init(textFont: .extraSmall, boldTextFont: .extraSmallStrong, headerTextColor: UIColor(Color.Theme.Foreground.Primary.Primary550), regularTextColor: UIColor(Color.Theme.Foreground.Primary.Primary550)),
-    inlineStyle: .init(citationFontDay: .citationDay,
-                       citationFontNight: .citationNight,
-                       emphasisTextFont: .extraSmall,
+    inlineStyle: .init(emphasisTextFont: .extraSmall,
                        boldTextFont: .extraSmallStrong,
                        boldTextColor: UIColor(Color.Theme.Foreground.Primary.Primary550),
                        linkTextFont: .extraSmall,
