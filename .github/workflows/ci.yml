@@ -23,12 +23,7 @@ jobs:
           xcodebuild test \
             -scheme SwiftStreamingMarkdown \
             -destination "platform=iOS Simulator,OS=26.4.1,name=iPhone 17" \
-            -skipMacroValidation \
-            -skip-testing:SwiftStreamingMarkdownTests/BlockQuoteViewSnapshotTests \
-            -skip-testing:SwiftStreamingMarkdownTests/MarkdownTextSnapshotTests \
-            -skip-testing:SwiftStreamingMarkdownTests/OrderedListViewTests \
-            -skip-testing:SwiftStreamingMarkdownTests/TableViewSnapshotTests \
-            -skip-testing:SwiftStreamingMarkdownTests/UnorderedListViewTests
+            -skipMacroValidation
 
   sample-app-build:
     name: Sample App Build
