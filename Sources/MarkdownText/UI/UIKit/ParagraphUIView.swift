@@ -35,6 +35,7 @@ class ParagraphUIView: UITextView {
   private var cachedSize: CachedParagraphUIViewSize?
 
   var textContextMenu: TextContextMenu?
+  var markdownController: MarkdownController?
 
   // To override the behaviour of this property, do so on ParagraphView's SwiftUI wrapper.
   var onUrlTap: (URL) -> Void = { UIApplication.shared.open($0) }
@@ -364,6 +365,10 @@ class ParagraphUIView: UITextView {
   func setTextContextMenu(_ menu: TextContextMenu?) {
     textContextMenu = menu
   }
+
+  func setMarkdownController(_ controller: MarkdownController?) {
+    markdownController = controller
+  }
 }
 
 // MARK: - UITextViewDelegate
@@ -385,7 +390,23 @@ extension ParagraphUIView: UITextViewDelegate {
   }
 
   func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
-    return textContextMenu?.buildUIMenu(textView: textView, selectedRange: range, suggestedActions: suggestedActions)
+    return textContextMenu?.buildUIMenu(
+      textView: textView,
+      selectedRange: range,
+      suggestedActions: suggestedActions,
+      markdownController: markdownController
+    )
+  }
+
+  func textView(_ textView: UITextView, willPresentEditMenuWith animator: any UIEditMenuInteractionAnimating) {
+    guard let textContextMenu, let markdownController else { return }
+    let clampedRange = NSIntersectionRange(textView.selectedRange, NSRange(location: 0, length: textView.attributedText.length))
+    let selectedText = textView.attributedText.attributedSubstring(from: clampedRange).string
+    for group in textContextMenu.menuGroups {
+      for item in group.items {
+        markdownController.onContextMenuAppear(id: item.id, selectedContent: selectedText)
+      }
+    }
   }
 }
 
