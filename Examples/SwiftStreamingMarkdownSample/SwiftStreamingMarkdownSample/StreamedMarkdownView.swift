@@ -12,6 +12,7 @@ struct StreamedMarkdownView: View {
   let chunkSize: Int
   let chunkInterval: TimeInterval
 
+  @EnvironmentObject var listener: LoggingMarkdownListener
   @StateObject private var controller: StreamedMarkdownViewController
 
   init(
@@ -39,7 +40,8 @@ struct StreamedMarkdownView: View {
     DocumentView(
       renderableDocument: controller.streamedText,
       horizontalPadding: horizontalPadding,
-      config: config
+      config: config,
+      listener: listener
     )
     .task {
       await controller.startStreaming(text: text)
