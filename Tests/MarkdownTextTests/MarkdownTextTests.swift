@@ -16,7 +16,7 @@ final class MarkdownTextTests: XCTestCase {
   /// Tests regular citation format (old format) by directly testing the convert method
   func testRegularCitationFormat() async throws {
     let markdown = """
-    [Microsoft](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1)
+    [Microsoft](http://example.com?citationMarker=9F742443)
     """
 
     let document = await parser.parse(text: markdown)
@@ -41,14 +41,13 @@ final class MarkdownTextTests: XCTestCase {
     }
 
     // Verify this is NOT an attachment citation (it's a regular citation)
-    XCTAssertFalse(link.isInlineCitation, "Link should NOT be detected as attachment citation")
+    XCTAssertFalse(link.isInlineCitation(coder: .default), "Link should NOT be detected as attachment citation")
 
     // Test the convert method directly
     let attributeContainer: [NSAttributedString.Key: Any] = [:]
     let convertedString = link.convert(
       attributeContainer: attributeContainer,
-      config: .default,
-      colorScheme: .light
+      config: .default
     )
 
     // Regular citations should show the link text "Microsoft", not the internal marker
@@ -57,7 +56,7 @@ final class MarkdownTextTests: XCTestCase {
       "DIRECT convert() call should return the link text for regular citations. Got: '\(convertedString.string)'"
     )
     XCTAssertFalse(
-      convertedString.string.contains("9F742443-6C92-4C44-BF58-8F5A7C53B6F1"),
+      convertedString.string.contains("9F742443"),
       "Regular citations should not show the internal marker UUID"
     )
   }
@@ -65,7 +64,7 @@ final class MarkdownTextTests: XCTestCase {
   /// Tests attachment citation format by directly testing the convert method
   func testAttachmentCitationFormat() async throws {
     let markdown = """
-    [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationTitle=Microsoft&citationFullTitle=Microsoft)
+    [9F742443](http://example.com?citationMarker=9F742443&citationTitle=Microsoft&citationA11yValue=Microsoft)
     """
 
     let document = await parser.parse(text: markdown)
@@ -90,14 +89,13 @@ final class MarkdownTextTests: XCTestCase {
     }
 
     // Verify this is an attachment citation
-    XCTAssertTrue(link.isInlineCitation, "Link should be detected as attachment citation")
+    XCTAssertTrue(link.isInlineCitation(coder: .default), "Link should be detected as attachment citation")
 
     // Test the convert method directly - this should expose the bug
     let attributeContainer: [NSAttributedString.Key: Any] = [:]
     let convertedString = link.convert(
       attributeContainer: attributeContainer,
-      config: .default,
-      colorScheme: .light
+      config: .default
     )
 
     // Verify that we get an attachment, not plain text
@@ -121,7 +119,7 @@ final class MarkdownTextTests: XCTestCase {
   func testAttachmentCitationFallbackBehavior() async throws {
     // Malformed attachment citation - missing citationTitle parameter
     let markdown = """
-    [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&brokenParam=value)
+    [9F742443](http://example.com?citationMarker=9F742443&brokenParam=value)
     """
 
     let document = await parser.parse(text: markdown)
@@ -146,14 +144,13 @@ final class MarkdownTextTests: XCTestCase {
     }
 
     // Verify this is an attachment citation (UUID in link text)
-    XCTAssertTrue(link.isInlineCitation, "Link should be detected as attachment citation")
+    XCTAssertTrue(link.isInlineCitation(coder: .default), "Link should be detected as attachment citation")
 
     // Test the convert method - should return empty for malformed attachment citations
     let attributeContainer: [NSAttributedString.Key: Any] = [:]
     let convertedString = link.convert(
       attributeContainer: attributeContainer,
-      config: .default,
-      colorScheme: .light
+      config: .default
     )
 
     // Should return empty string when attachment data extraction fails (better UX than showing UUID)
@@ -169,7 +166,7 @@ final class MarkdownTextTests: XCTestCase {
   /// Tests that BlockQuote correctly renders attachment citations without showing UUIDs
   func testBlockQuoteWithAttachmentCitations() async throws {
     let markdown = """
-    > This quote contains an attachment citation [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationTitle=Microsoft&citationFullTitle=Microsoft) and regular citation [Google](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1)
+    > This quote contains an attachment citation [9F742443](http://example.com?citationMarker=9F742443&citationTitle=Microsoft&citationA11yValue=Microsoft) and regular citation [Google](http://example.com?citationMarker=9F742443)
     """
 
     let document = await parser.parse(text: markdown)
@@ -217,7 +214,7 @@ final class MarkdownTextTests: XCTestCase {
       "BlockQuote should show regular citation title 'Google'. Got: '\(extractedText)'"
     )
     XCTAssertFalse(
-      extractedText.contains("9F742443-6C92-4C44-BF58-8F5A7C53B6F1"),
+      extractedText.contains("9F742443"),
       "BlockQuote should NOT show the UUID marker in plain text. Got: '\(extractedText)'"
     )
   }
@@ -225,9 +222,9 @@ final class MarkdownTextTests: XCTestCase {
   /// Tests that plain text extraction works correctly for both citation types
   func testPlainTextExtractionForCitations() async throws {
     let markdownWithBothTypes = """
-    Regular citation: [Microsoft](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1)
+    Regular citation: [Microsoft](http://example.com?citationMarker=9F742443)
 
-    Attachment citation: [9F742443-6C92-4C44-BF58-8F5A7C53B6F1](http://example.com?citationMarker=9F742443-6C92-4C44-BF58-8F5A7C53B6F1&citationTitle=Google&citationFullTitle=Google)
+    Attachment citation: [9F742443](http://example.com?citationMarker=9F742443&citationTitle=Google&citationA11yValue=Google)
     """
 
     let plainText = await markdownWithBothTypes.markdownToPlainText()
@@ -242,7 +239,7 @@ final class MarkdownTextTests: XCTestCase {
       "Plain text should show attachment citation title extracted from URL. Got: '\(plainText)'"
     )
     XCTAssertFalse(
-      plainText.contains("9F742443-6C92-4C44-BF58-8F5A7C53B6F1"),
+      plainText.contains("9F742443"),
       "Plain text should NOT contain UUID marker. Got: '\(plainText)'"
     )
   }
@@ -255,7 +252,7 @@ final class MarkdownTextTests: XCTestCase {
     """
 
     let document = await parser.parse(text: text)
-    let renderableDoc = await RenderableDocument(document: document, config: .default, colorScheme: .light)
+    let renderableDoc = await RenderableDocument(document: document, config: .default)
     let renderables = renderableDoc.renderables
 
     // Verify it parses without error

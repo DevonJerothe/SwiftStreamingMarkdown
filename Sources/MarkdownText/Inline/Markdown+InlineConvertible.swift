@@ -9,14 +9,14 @@ import UniformTypeIdentifiers
 
 extension Markdown.Text: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     return NSMutableAttributedString(string: self.string).mergingAttributes(attributeContainer)
   }
 }
 
 extension Markdown.Emphasis: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     let str = NSMutableAttributedString()
     var newContainer = attributeContainer
         
@@ -27,7 +27,7 @@ extension Markdown.Emphasis: InlineConvertible {
       newContainer[.font] = config.paragraphStyle.textFonts.italic ?? config.paragraphStyle.textFonts.normal
     }
     self.inlineConvertibleChildren.forEach { convertible in
-      str.append(convertible.convert(attributeContainer: newContainer, config: config, colorScheme: colorScheme))
+      str.append(convertible.convert(attributeContainer: newContainer, config: config))
     }
     return str
   }
@@ -35,7 +35,7 @@ extension Markdown.Emphasis: InlineConvertible {
 
 extension Markdown.Strong: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     let str = NSMutableAttributedString()
     var newContainer = attributeContainer
     if let currentTextFonts = attributeContainer[.typography] as? TextFonts {
@@ -48,7 +48,7 @@ extension Markdown.Strong: InlineConvertible {
       newContainer[.foregroundColor] = config.inlineStyle.boldTextColor
     }
     self.inlineConvertibleChildren.forEach { convertible in
-      str.append(convertible.convert(attributeContainer: newContainer, config: config, colorScheme: colorScheme))
+      str.append(convertible.convert(attributeContainer: newContainer, config: config))
     }
     return str
   }
@@ -56,13 +56,13 @@ extension Markdown.Strong: InlineConvertible {
 
 extension Markdown.Strikethrough: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     let str = NSMutableAttributedString()
     var container = attributeContainer
     container[.strikethroughStyle] = NSUnderlineStyle.single.rawValue
     container[.strikethroughColor] = container[.foregroundColor]
     self.inlineConvertibleChildren.forEach { convertible in
-      str.append(convertible.convert(attributeContainer: container, config: config, colorScheme: colorScheme))
+      str.append(convertible.convert(attributeContainer: container, config: config))
     }
     return str
   }
@@ -70,28 +70,28 @@ extension Markdown.Strikethrough: InlineConvertible {
 
 extension Markdown.Link: InlineConvertible {
   /// True when this link is a citation that should render as an attachment
-  /// bubble. Delegates to `CitationCoder` so the marker/query-param format
-  /// lives in one place.
-  var isInlineCitation: Bool {
+  /// bubble. Delegates to the supplied `CitationCoder` so the marker /
+  /// query-param format is configurable per render.
+  func isInlineCitation(coder: CitationCoder) -> Bool {
     guard let destination = self.destination,
           let url = self.createURL(from: destination)
     else {
       return false
     }
-    return CitationCoder.default.isCitation(linkText: self.plainText, url: url)
+    return coder.isCitation(linkText: self.plainText, url: url)
   }
 
   private func createURL(from string: String) -> URL? {
     return URL.fromMixedEncodingString(string)
   }
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     var container = attributeContainer
 
     func buildAttributedString() -> NSMutableAttributedString {
       let str = NSMutableAttributedString()
       self.inlineConvertibleChildren.forEach { convertible in
-        str.append(convertible.convert(attributeContainer: container, config: config, colorScheme: colorScheme))
+        str.append(convertible.convert(attributeContainer: container, config: config))
       }
       return str
     }
@@ -103,9 +103,10 @@ extension Markdown.Link: InlineConvertible {
       return buildAttributedString()
     }
 
-    if config.citationConfig.isEnabled, self.isInlineCitation {
+    let coder = config.citationConfig.coder
+    if config.citationConfig.isEnabled, self.isInlineCitation(coder: coder) {
       // Extract title from URL query parameters for new attachment citation format
-      if let attachmentData = CitationCoder.default.decode(linkDestination: destination),
+      if let attachmentData = coder.decode(linkDestination: destination),
          let citationAttachment = InlineCitationAttachment(citationData: attachmentData, citationConfig: config.citationConfig) {
 
         // Create attributed string with the citation attachment
@@ -129,14 +130,14 @@ extension Markdown.Link: InlineConvertible {
 
 extension Markdown.SoftBreak: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     return NSMutableAttributedString(string: "\n").mergingAttributes(attributeContainer)
   }
 }
 
 extension Markdown.LineBreak: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     return NSMutableAttributedString(string: "\n").mergingAttributes(attributeContainer)
   }
 }
@@ -147,7 +148,7 @@ extension Markdown.InlineCode: InlineConvertible {
     return self.code.hasPrefix(LaTexPreProcessorImpl.inlineCodePrefix) && self.code.hasSuffix(LaTexPreProcessorImpl.inlineCodeSuffix)
   }
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     var codeContent = self.code
     if self.isInlineLatex {
       codeContent = String(self
@@ -182,10 +183,10 @@ extension Markdown.InlineCode: InlineConvertible {
 
 extension Markdown.Table.Cell: InlineConvertible {
 
-  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig, colorScheme: ColorScheme) -> NSMutableAttributedString {
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
     let str = NSMutableAttributedString()
     self.inlineConvertibleChildren.forEach { convertible in
-      str.append(convertible.convert(attributeContainer: attributeContainer, config: config, colorScheme: colorScheme)
+      str.append(convertible.convert(attributeContainer: attributeContainer, config: config)
         .removingAllOccurrences(of: MarkdownConstants.openingInlineLatexMarker)
         .removingAllOccurrences(of: MarkdownConstants.closingInlineLatexMarker))
     }

@@ -20,7 +20,7 @@ final class UnorderedListViewTests: SnapshotTestCase {
     var results: [[MarkdownRenderable]] = []
     for paragraph in paragraphs {
       let doc = await parser.parse(text: paragraph)
-      results.append(doc.convert(with: .default, colorScheme: .light))
+      results.append(doc.convert(with: .default))
     }
     let unorderedListView = UnorderedListView(items: [
       MarkdownListItem(children: [results[0][0]],
@@ -41,17 +41,17 @@ final class UnorderedListViewTests: SnapshotTestCase {
 
   @MainActor
   func testUnorderedListViewWithCitations() async throws {
-    let citationMarker = "9F742443-6C92-4C44-BF58-8F5A7C53B6F1"
+    let citationMarker = "9F742443"
     let paragraphs = [
       "item 1",
-      "Item with citation [\(citationMarker)](http://example.com?citationMarker=\(citationMarker)&citationTitle=ESPN&citationFullTitle=ESPN%20Sports)",
+      "Item with citation [\(citationMarker)](http://example.com?citationMarker=\(citationMarker)&citationTitle=ESPN&citationA11yValue=ESPN%20Sports)",
       "item 3"
     ]
     let parser = MarkdownParserImpl()
     var results: [[MarkdownRenderable]] = []
     for paragraph in paragraphs {
       let doc = await parser.parse(text: paragraph)
-      results.append(doc.convert(with: .default, colorScheme: .light))
+      results.append(doc.convert(with: .default))
     }
     let unorderedListView = UnorderedListView(items: [
       MarkdownListItem(children: [results[0][0]],
