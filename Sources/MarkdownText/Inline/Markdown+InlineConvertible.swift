@@ -69,23 +69,16 @@ extension Markdown.Strikethrough: InlineConvertible {
 }
 
 extension Markdown.Link: InlineConvertible {
-  var isAttachmentCitation: Bool {
-    self.plainText == InlineCitationConstants.citationMarkerValue
-  }
-
-  private var isInlineCitation: Bool {
+  /// True when this link is a citation that should render as an attachment
+  /// bubble. Delegates to `CitationCoder` so the marker/query-param format
+  /// lives in one place.
+  var isInlineCitation: Bool {
     guard let destination = self.destination,
-          let urlWithMarker = self.createURL(from: destination),
-          let components = URLComponents(url: urlWithMarker, resolvingAgainstBaseURL: true)
+          let url = self.createURL(from: destination)
     else {
       return false
     }
-    let queryParam = components.queryItems?.first(
-      where: {
-        $0.name == InlineCitationConstants.citationMarkerQueryParam && $0.value == InlineCitationConstants.citationMarkerValue
-      }
-    )
-    return queryParam != nil
+    return CitationCoder.default.isCitation(linkText: self.plainText, url: url)
   }
 
   private func createURL(from string: String) -> URL? {
@@ -110,23 +103,19 @@ extension Markdown.Link: InlineConvertible {
       return buildAttributedString()
     }
 
-    if self.isInlineCitation {
-      if self.isAttachmentCitation {
-        // Extract title from URL query parameters for new attachment citation format
-        if let attachmentData = InlineAttachmentData(linkDestination: destination),
-           let citationAttachment = InlineCitationAttachment(citationData: attachmentData, citationConfig: config.citationConfig) {
+    if config.citationConfig.isEnabled, self.isInlineCitation {
+      // Extract title from URL query parameters for new attachment citation format
+      if let attachmentData = CitationCoder.default.decode(linkDestination: destination),
+         let citationAttachment = InlineCitationAttachment(citationData: attachmentData, citationConfig: config.citationConfig) {
 
-          // Create attributed string with the citation attachment
-          let attributedString = NSMutableAttributedString()
-          attributedString.append(NSAttributedString(attachment: citationAttachment))
+        // Create attributed string with the citation attachment
+        let attributedString = NSMutableAttributedString()
+        attributedString.append(NSAttributedString(attachment: citationAttachment))
 
-          return attributedString
-        }
-        // Fallback to empty string if we can't extract the title
-        return NSMutableAttributedString(string: "")
-      } else {
-        return buildAttributedString()
+        return attributedString
       }
+      // Fallback to empty string if we can't extract the title
+      return NSMutableAttributedString(string: "")
     } else {
       // Is a real link, provided as markdown
       container[.link] = url
