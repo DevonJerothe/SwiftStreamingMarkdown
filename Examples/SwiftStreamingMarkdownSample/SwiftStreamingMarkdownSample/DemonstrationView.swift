@@ -13,33 +13,6 @@ struct DemonstrationView: View {
   let markdownText: String
   @StateObject var listener = LoggingMarkdownListener()
 
-  private var streamedRenderConfig: MarkdownRenderConfig {
-    let base: MarkdownRenderConfig
-    switch demonstration {
-    case .robotoTheme:
-      base = RobotoTheme.renderConfig
-    default:
-      base = .default
-    }
-    return base
-      .withTextContextMenu(value: demonstration.customContextMenu)
-      .withShouldAnimateText(value: true)
-  }
-
-  private var nonStreamedRenderConfig: MarkdownRenderConfig {
-    switch demonstration {
-    case .robotoTheme: RobotoTheme.renderConfig
-    default: .default
-    }
-  }
-
-  private var backgroundColor: Color {
-    switch demonstration {
-    case .robotoTheme: RobotoTheme.pageBackground
-    default: Color(.systemBackground)
-    }
-  }
-
   var body: some View {
     ScrollView {
       VStack(spacing: 0) {
@@ -51,13 +24,13 @@ struct DemonstrationView: View {
                 chunkSize: 48,
                 chunkInterval: 0.2
               ),
-              config: streamedRenderConfig,
+              config: demonstration.streamedRenderConfig,
               listener: listener
             )
           } else {
             MarkdownView(
               text: markdownText,
-              config: nonStreamedRenderConfig,
+              config: demonstration.nonStreamedRenderConfig,
               listener: listener
             )
           }
@@ -68,7 +41,10 @@ struct DemonstrationView: View {
       }
     }
     .scrollPosition($listener.scrollPosition)
-    .background(backgroundColor.ignoresSafeArea())
+    .background(demonstration.backgroundColor.ignoresSafeArea())
+    .onChange(of: preferStreamedMarkdown, initial: true) { _, isStreamed in
+      listener.isStreamingActive = isStreamed
+    }
     .navigationTitle(demonstration.rawValue)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
