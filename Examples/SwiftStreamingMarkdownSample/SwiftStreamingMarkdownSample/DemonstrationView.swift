@@ -12,11 +12,6 @@ struct DemonstrationView: View {
   let demonstration: Demonstration
   let markdownText: String
   @StateObject var listener = LoggingMarkdownListener()
-  @State private var pendingStreamingScroll = false
-  @State private var followsStreamingMarkdown = true
-
-  private static let streamBottomAnchorID = "stream-bottom-anchor"
-  private static let streamingScrollAnimationDuration = 0.16
 
   private var streamedRenderConfig: MarkdownRenderConfig {
     let base: MarkdownRenderConfig
@@ -46,37 +41,33 @@ struct DemonstrationView: View {
   }
 
   var body: some View {
-    ScrollViewReader { scrollProxy in
-      ScrollView {
-        VStack(spacing: 0) {
-          Group {
-            if preferStreamedMarkdown {
-              StreamedMarkdownView(
+    ScrollView {
+      VStack(spacing: 0) {
+        Group {
+          if preferStreamedMarkdown {
+            StreamedMarkdownView(
+              source: TextSimulatedStreamSource(
                 text: markdownText,
-                config: streamedRenderConfig,
-                chunkInterval: 0.2,
-                onStreamUpdate: {
-                  scrollToStreamingBottom(with: scrollProxy)
-                }
-              ).environmentObject(listener)
-            } else {
-              MarkdownView(
-                text: markdownText,
-                config: nonStreamedRenderConfig,
-                listener: listener
-              )
-            }
+                chunkSize: 48,
+                chunkInterval: 0.2
+              ),
+              config: streamedRenderConfig,
+              listener: listener
+            )
+          } else {
+            MarkdownView(
+              text: markdownText,
+              config: nonStreamedRenderConfig,
+              listener: listener
+            )
           }
-          .padding(.horizontal, 16)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .padding(.vertical, 16)
-
-          Color.clear
-            .frame(height: 1)
-            .id(Self.streamBottomAnchorID)
         }
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 16)
       }
     }
+    .scrollPosition($listener.scrollPosition)
     .background(backgroundColor.ignoresSafeArea())
     .navigationTitle(demonstration.rawValue)
     .navigationBarTitleDisplayMode(.inline)
@@ -84,11 +75,11 @@ struct DemonstrationView: View {
       ToolbarItemGroup(placement: .topBarTrailing) {
         if preferStreamedMarkdown {
           Button {
-            followsStreamingMarkdown.toggle()
+            listener.followsStreamingMarkdown.toggle()
           } label: {
-            Image(systemName: followsStreamingMarkdown ? "arrow.down.circle.fill" : "arrow.down.circle")
+            Image(systemName: listener.followsStreamingMarkdown ? "arrow.down.circle.fill" : "arrow.down.circle")
           }
-          .accessibilityLabel(followsStreamingMarkdown ? "Disable follow scrolling" : "Enable follow scrolling")
+          .accessibilityLabel(listener.followsStreamingMarkdown ? "Disable follow scrolling" : "Enable follow scrolling")
         }
 
         Menu {
@@ -101,21 +92,6 @@ struct DemonstrationView: View {
           Image(systemName: "circle.righthalf.filled")
             .accessibilityLabel("Appearance")
         }
-      }
-    }
-  }
-
-  private func scrollToStreamingBottom(with scrollProxy: ScrollViewProxy) {
-    guard preferStreamedMarkdown, followsStreamingMarkdown else { return }
-    guard !pendingStreamingScroll else { return }
-
-    pendingStreamingScroll = true
-    DispatchQueue.main.async {
-      withAnimation(.linear(duration: Self.streamingScrollAnimationDuration)) {
-        scrollProxy.scrollTo(Self.streamBottomAnchorID, anchor: .bottom)
-      }
-      DispatchQueue.main.asyncAfter(deadline: .now() + Self.streamingScrollAnimationDuration) {
-        pendingStreamingScroll = false
       }
     }
   }
