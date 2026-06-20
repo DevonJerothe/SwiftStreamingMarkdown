@@ -288,4 +288,21 @@ final class MarkdownTextSnapshotTests: SnapshotTestCase {
     }
     assert(view)
   }
+
+  func testCustomBlockSpacing() async throws {
+    let text = """
+    ## Heading
+
+    This is a paragraph with some text to render.
+
+    Another paragraph right here.
+    """
+    let config = MarkdownRenderConfig.default.withBlockSpacing(value: 10)
+    let document = await parser.parse(text: text)
+    let renderables = await RenderableDocument(document: document, config: config)
+    let view = CanvasView {
+      DocumentView(renderableDocument: renderables, config: config).padding(.horizontal, 24)
+    }
+    assert(view)
+  }
 }

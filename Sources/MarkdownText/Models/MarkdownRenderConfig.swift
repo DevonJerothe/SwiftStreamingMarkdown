@@ -33,6 +33,9 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
   public let textContextMenu: TextContextMenu?
   /// Configuration that controls inline citation parsing and rendering.
   public let citationConfig: CitationConfig
+  /// Vertical spacing between adjacent blocks (paragraphs, headings,
+  /// code blocks, lists, etc.). Defaults to 30.
+  public let blockSpacing: CGFloat
 
   /// Font and color style for a uniformly-styled run of markdown text.
   public struct MarkdownTextStyle: Hashable, Sendable {
@@ -175,6 +178,9 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     )
   }
 
+  /// Default inter-block spacing.
+  public static let defaultBlockSpacing: CGFloat = 30
+
   /// Default styling for `blockQuoteStyle`.
   public static let defaultBlockQuoteStyle = MarkdownTextStyle(
     textFonts: Typography.baseTextFonts,
@@ -237,7 +243,8 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     tableStyle: MarkdownTableTextStyle = MarkdownRenderConfig.defaultTableStyle,
     inlineStyle: MarkdownInlineTextStyle = MarkdownRenderConfig.defaultInlineStyle,
     textContextMenu: TextContextMenu? = nil,
-    citationConfig: CitationConfig = .default
+    citationConfig: CitationConfig = .default,
+    blockSpacing: CGFloat = MarkdownRenderConfig.defaultBlockSpacing
   ) {
     self.shouldAnimateText = shouldAnimateText
     self.blockQuoteStyle = blockQuoteStyle
@@ -248,6 +255,7 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     self.inlineStyle = inlineStyle
     self.textContextMenu = textContextMenu
     self.citationConfig = citationConfig
+    self.blockSpacing = blockSpacing
   }
 
   /// The default render config, equivalent to calling `init()` with no

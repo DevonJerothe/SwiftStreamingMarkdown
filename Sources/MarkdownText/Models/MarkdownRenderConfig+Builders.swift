@@ -17,7 +17,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -32,7 +33,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -47,7 +49,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -62,7 +65,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -77,7 +81,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -92,7 +97,8 @@ extension MarkdownRenderConfig {
       tableStyle: value,
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -107,7 +113,8 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: value,
       textContextMenu: textContextMenu,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
     )
   }
 
@@ -123,7 +130,24 @@ extension MarkdownRenderConfig {
       tableStyle: tableStyle,
       inlineStyle: inlineStyle,
       textContextMenu: value,
-      citationConfig: citationConfig
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing
+    )
+  }
+
+  /// Returns a copy with `blockSpacing` replaced.
+  public func withBlockSpacing(value: CGFloat) -> MarkdownRenderConfig {
+    MarkdownRenderConfig(
+      shouldAnimateText: shouldAnimateText,
+      blockQuoteStyle: blockQuoteStyle,
+      headingStyle: headingStyle,
+      orderedListStyle: orderedListStyle,
+      paragraphStyle: paragraphStyle,
+      tableStyle: tableStyle,
+      inlineStyle: inlineStyle,
+      textContextMenu: textContextMenu,
+      citationConfig: citationConfig,
+      blockSpacing: value
     )
   }
 }

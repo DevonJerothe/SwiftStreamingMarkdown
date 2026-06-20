@@ -8,6 +8,8 @@ import SwiftUI
 
 struct BlockView: View {
 
+  @Environment(\.markdownConfig) var config: MarkdownRenderConfig
+
   let renderables: [MarkdownRenderable]
 
   init(renderables: [MarkdownRenderable]) {
@@ -15,7 +17,7 @@ struct BlockView: View {
   }
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 30) {
+    VStack(alignment: .leading, spacing: config.blockSpacing) {
       ForEach(renderables) { renderable in
         SingleBlockView(renderable: renderable)
       }
