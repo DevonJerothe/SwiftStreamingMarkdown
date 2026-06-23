@@ -35,6 +35,19 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
   /// Vertical spacing between adjacent blocks (paragraphs, headings,
   /// code blocks, lists, etc.). Defaults to 30.
   public let blockSpacing: CGFloat
+  /// App-specific regex highlights applied to plain text runs after Markdown
+  /// inline conversion. Inline code, links, citations, and attachments are not
+  /// highlighted.
+  public let regexHighlights: [RegexHighlight]
+  /// Font used when resolving `.standardQuotedSpeech`.
+  public let quoteHighlightFont: UIFont
+  /// Foreground color used when resolving `.standardQuotedSpeech`.
+  public let quoteHighlightColor: Color
+  /// Optional renderer for Markdown image blocks. When nil, the default cached
+  /// remote image renderer is used.
+  public let imageRenderer: MarkdownImageRenderer?
+  /// Aspect ratio reserved for image blocks before image dimensions are known.
+  public let reservedImageAspectRatio: CGFloat
 
   /// Font and color style for a uniformly-styled run of markdown text.
   public struct MarkdownTextStyle: Hashable, Sendable {
@@ -179,6 +192,8 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
 
   /// Default inter-block spacing.
   public static let defaultBlockSpacing: CGFloat = 30
+  /// Default image aspect ratio reserved before remote image dimensions load.
+  public static let defaultReservedImageAspectRatio: CGFloat = 16 / 9
 
   /// Default styling for `blockQuoteStyle`.
   public static let defaultBlockQuoteStyle = MarkdownTextStyle(
@@ -230,6 +245,9 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     codeUnderlineColor: Color.Theme.Component.CodeBlock.Foreground.Header
   )
 
+  public static let defaultQuoteHighlightFont = Typography.baseTextFonts.italic ?? Typography.baseTextFonts.normal
+  public static let defaultQuoteHighlightColor = Color.Theme.Accent.Accent600
+
   /// Create a render config. Every parameter has a sensible default that
   /// matches the bundled `Typography`/`Color.Theme` palette, so callers can
   /// override only the fields they care about.
@@ -243,7 +261,12 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     inlineStyle: MarkdownInlineTextStyle = MarkdownRenderConfig.defaultInlineStyle,
     textContextMenu: TextContextMenu? = nil,
     citationConfig: CitationConfig = .default,
-    blockSpacing: CGFloat = MarkdownRenderConfig.defaultBlockSpacing
+    blockSpacing: CGFloat = MarkdownRenderConfig.defaultBlockSpacing,
+    regexHighlights: [RegexHighlight] = [],
+    quoteHighlightFont: UIFont = MarkdownRenderConfig.defaultQuoteHighlightFont,
+    quoteHighlightColor: Color = MarkdownRenderConfig.defaultQuoteHighlightColor,
+    imageRenderer: MarkdownImageRenderer? = nil,
+    reservedImageAspectRatio: CGFloat = MarkdownRenderConfig.defaultReservedImageAspectRatio
   ) {
     self.shouldAnimateText = shouldAnimateText
     self.blockQuoteStyle = blockQuoteStyle
@@ -255,9 +278,50 @@ public struct MarkdownRenderConfig: Hashable, Sendable {
     self.textContextMenu = textContextMenu
     self.citationConfig = citationConfig
     self.blockSpacing = blockSpacing
+    self.regexHighlights = regexHighlights
+    self.quoteHighlightFont = quoteHighlightFont
+    self.quoteHighlightColor = quoteHighlightColor
+    self.imageRenderer = imageRenderer
+    self.reservedImageAspectRatio = reservedImageAspectRatio
   }
 
   /// The default render config, equivalent to calling `init()` with no
   /// arguments.
   public static let `default` = MarkdownRenderConfig(shouldAnimateText: false)
+
+  public static func == (lhs: MarkdownRenderConfig, rhs: MarkdownRenderConfig) -> Bool {
+    lhs.shouldAnimateText == rhs.shouldAnimateText &&
+    lhs.blockQuoteStyle == rhs.blockQuoteStyle &&
+    lhs.headingStyle == rhs.headingStyle &&
+    lhs.orderedListStyle == rhs.orderedListStyle &&
+    lhs.paragraphStyle == rhs.paragraphStyle &&
+    lhs.tableStyle == rhs.tableStyle &&
+    lhs.inlineStyle == rhs.inlineStyle &&
+    lhs.textContextMenu == rhs.textContextMenu &&
+    lhs.citationConfig == rhs.citationConfig &&
+    lhs.blockSpacing == rhs.blockSpacing &&
+    lhs.regexHighlights == rhs.regexHighlights &&
+    lhs.quoteHighlightFont == rhs.quoteHighlightFont &&
+    lhs.quoteHighlightColor == rhs.quoteHighlightColor &&
+    (lhs.imageRenderer == nil) == (rhs.imageRenderer == nil) &&
+    lhs.reservedImageAspectRatio == rhs.reservedImageAspectRatio
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(shouldAnimateText)
+    hasher.combine(blockQuoteStyle)
+    hasher.combine(headingStyle)
+    hasher.combine(orderedListStyle)
+    hasher.combine(paragraphStyle)
+    hasher.combine(tableStyle)
+    hasher.combine(inlineStyle)
+    hasher.combine(textContextMenu)
+    hasher.combine(citationConfig)
+    hasher.combine(blockSpacing)
+    hasher.combine(regexHighlights)
+    hasher.combine(quoteHighlightFont)
+    hasher.combine(quoteHighlightColor)
+    hasher.combine(imageRenderer != nil)
+    hasher.combine(reservedImageAspectRatio)
+  }
 }

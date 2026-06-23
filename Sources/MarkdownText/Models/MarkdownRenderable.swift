@@ -38,6 +38,9 @@ indirect enum MarkdownRenderable: Identifiable, Equatable, @unchecked Sendable {
   /// To be rendered as a block quote
   case blockQuote(id: String, item: BlockQuoteRenderable)
 
+  /// To be rendered as a Markdown image block
+  case image(id: String, source: URL, alt: String?)
+
   var id: String {
     switch self {
     case .paragraph(let id, _): return id
@@ -49,6 +52,7 @@ indirect enum MarkdownRenderable: Identifiable, Equatable, @unchecked Sendable {
     case .table(let id, _, _, _): return id
     case .thematicBreak(let id): return id
     case .blockQuote(let id, _): return id
+    case .image(let id, _, _): return id
     }
   }
 

@@ -297,6 +297,9 @@ targets are:
 | `make ci` | Run lint, tests, and the sample-app build. |
 | `make cloc` | Count code with `cloc --vcs=git`. |
 
+This package targets iOS and imports UIKit, so local package validation should
+use the simulator-backed `make test` command instead of plain `swift test`.
+
 ## Contributing
 
 Contributions are welcome! Bug reports and feature requests go through the

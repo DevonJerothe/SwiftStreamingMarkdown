@@ -113,6 +113,11 @@ extension Markdown.Link: InlineConvertible {
         // Create attributed string with the citation attachment
         let attributedString = NSMutableAttributedString()
         attributedString.append(NSAttributedString(attachment: citationAttachment))
+        attributedString.addAttribute(
+          .markdownAllowsRegexHighlight,
+          value: false,
+          range: NSRange(location: 0, length: attributedString.length)
+        )
 
         return attributedString
       }
@@ -124,8 +129,16 @@ extension Markdown.Link: InlineConvertible {
       container[.font] = config.inlineStyle.linkTextFont
       container[.foregroundColor] = UIColor(config.inlineStyle.linkTextColor)
       container[.underlineStyle] = []
+      container[.markdownAllowsRegexHighlight] = false
       return buildAttributedString()
     }
+  }
+}
+
+extension Markdown.Image: InlineConvertible {
+
+  func convert(attributeContainer: NSAttributeContainer, config: MarkdownRenderConfig) -> NSMutableAttributedString {
+    NSMutableAttributedString(string: plainText).mergingAttributes(attributeContainer)
   }
 }
 
@@ -169,7 +182,13 @@ extension Markdown.InlineCode: InlineConvertible {
       let encoder = JSONEncoder()
       if let payload = try? encoder.encode(attachmentData) {
         let attachment = NSTextAttachment(data: payload, ofType: UTType.data.identifier)
-        return NSMutableAttributedString(attachment: attachment)
+        let attributedString = NSMutableAttributedString(attachment: attachment)
+        attributedString.addAttribute(
+          .markdownAllowsRegexHighlight,
+          value: false,
+          range: NSRange(location: 0, length: attributedString.length)
+        )
+        return attributedString
       }
     }
     var container = attributeContainer
@@ -178,6 +197,7 @@ extension Markdown.InlineCode: InlineConvertible {
     container[.backgroundColor] = UIColor(config.inlineStyle.codeBackgroundColor)
     container[.underlineStyle] =  NSUnderlineStyle.patternDot.rawValue
     container[.underlineColor] = UIColor(config.inlineStyle.codeUnderlineColor)
+    container[.markdownAllowsRegexHighlight] = false
     return NSMutableAttributedString(string: codeContent).mergingAttributes(container)
   }
 }
