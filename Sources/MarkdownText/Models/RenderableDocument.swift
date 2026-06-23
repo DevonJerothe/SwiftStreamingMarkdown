@@ -34,6 +34,10 @@ public struct RenderableDocument: Equatable, Sendable {
     self.renderables = document.convert(with: config)
   }
 
+  init(document: Document, config: MarkdownRenderConfig) {
+    self.renderables = document.convert(with: config)
+  }
+
   /// Construct a renderable wrapping a single plain-text paragraph styled
   /// with `config.paragraphStyle`. Useful for showing non-markdown text in a
   /// `MarkdownView` without round-tripping through the parser.
@@ -56,6 +60,19 @@ public struct RenderableDocument: Equatable, Sendable {
   /// An empty document, equivalent to `RenderableDocument(plainText: "", …)`
   /// but allocation-free.
   public static let empty = RenderableDocument(renderables: [])
+
+  /// Synchronously parse and convert a completed Markdown string using a shared
+  /// cache. Intended for completed chat bubbles where an empty first render can
+  /// cause visible list relayout.
+  public static func readSync(_ markdown: String, config: MarkdownRenderConfig = .default) -> RenderableDocument {
+    RenderableDocumentCache.shared.readSync(markdown, config: config)
+  }
+
+  /// Asynchronously parse and convert a completed Markdown string using the same
+  /// cache as `readSync`.
+  public static func read(_ markdown: String, config: MarkdownRenderConfig = .default) async -> RenderableDocument {
+    await RenderableDocumentCache.shared.read(markdown, config: config)
+  }
 }
 
 extension RenderableDocument {
@@ -84,5 +101,60 @@ extension MarkdownRenderable {
 extension MarkdownListItem {
   func attributedStrings() -> [NSAttributedString] {
     return self.children.flatMap { $0.extractAttributedStrings() }
+  }
+}
+
+private actor RenderableDocumentCache {
+  static let shared = RenderableDocumentCache()
+
+  private struct Key: Hashable {
+    let markdown: String
+    let config: MarkdownRenderConfig
+  }
+
+  private static let syncLock = NSLock()
+  nonisolated(unsafe) private static var syncStorage: [Key: RenderableDocument] = [:]
+
+  private var storage: [Key: RenderableDocument] = [:]
+
+  func read(_ markdown: String, config: MarkdownRenderConfig) async -> RenderableDocument {
+    let key = Key(markdown: markdown, config: config)
+
+    if let cached = Self.cachedDocument(for: key) {
+      return cached
+    }
+
+    if let cached = storage[key] {
+      return cached
+    }
+
+    let document = MarkdownParserImpl().parseSync(text: markdown, config: config)
+    storage[key] = document
+    Self.store(document, for: key)
+    return document
+  }
+
+  nonisolated func readSync(_ markdown: String, config: MarkdownRenderConfig) -> RenderableDocument {
+    let key = Key(markdown: markdown, config: config)
+
+    if let cached = Self.cachedDocument(for: key) {
+      return cached
+    }
+
+    let document = MarkdownParserImpl().parseSync(text: markdown, config: config)
+    Self.store(document, for: key)
+    return document
+  }
+
+  private static func cachedDocument(for key: Key) -> RenderableDocument? {
+    syncLock.lock()
+    defer { syncLock.unlock() }
+    return syncStorage[key]
+  }
+
+  private static func store(_ document: RenderableDocument, for key: Key) {
+    syncLock.lock()
+    defer { syncLock.unlock() }
+    syncStorage[key] = document
   }
 }

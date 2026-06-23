@@ -74,6 +74,8 @@ struct SingleBlockView: View {
                   rawMarkdown: rawMarkdown)
       case .blockQuote(_, let item):
         BlockQuoteView(item: item)
+      case .image(_, let source, let alt):
+        MarkdownImageBlockView(image: .init(source: source, alt: alt))
       }
     }
   }

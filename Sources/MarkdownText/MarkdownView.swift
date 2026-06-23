@@ -66,3 +66,27 @@ final class MarkdownViewController: ObservableObject {
     }
   }
 }
+
+/// Cache-backed renderer for completed Markdown. Unlike `MarkdownView`, this
+/// parses synchronously during initialization so completed chat bubbles can
+/// render with a stable first layout.
+public struct CachedMarkdownView: View {
+
+  private let renderable: RenderableDocument
+  private let config: MarkdownRenderConfig
+  private let listener: MarkdownListener?
+
+  public init(
+    text: String,
+    config: MarkdownRenderConfig = .default,
+    listener: MarkdownListener? = nil
+  ) {
+    self.renderable = RenderableDocument.readSync(text, config: config)
+    self.config = config
+    self.listener = listener
+  }
+
+  public var body: some View {
+    DocumentView(renderableDocument: renderable, config: config, listener: listener)
+  }
+}

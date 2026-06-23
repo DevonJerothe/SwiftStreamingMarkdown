@@ -4,6 +4,8 @@
 //
 
 import Foundation
+import SwiftUI
+import UIKit
 
 extension MarkdownRenderConfig {
   /// Returns a copy with `shouldAnimateText` replaced.
@@ -18,7 +20,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -34,7 +41,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -50,7 +62,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -66,7 +83,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -82,7 +104,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -98,7 +125,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -114,7 +146,12 @@ extension MarkdownRenderConfig {
       inlineStyle: value,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -131,7 +168,12 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: value,
       citationConfig: citationConfig,
-      blockSpacing: blockSpacing
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
     )
   }
 
@@ -147,7 +189,78 @@ extension MarkdownRenderConfig {
       inlineStyle: inlineStyle,
       textContextMenu: textContextMenu,
       citationConfig: citationConfig,
-      blockSpacing: value
+      blockSpacing: value,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
+    )
+  }
+
+  /// Returns a copy with regex highlights replaced.
+  public func withRegexHighlights(value: [RegexHighlight]) -> MarkdownRenderConfig {
+    MarkdownRenderConfig(
+      shouldAnimateText: shouldAnimateText,
+      blockQuoteStyle: blockQuoteStyle,
+      headingStyle: headingStyle,
+      orderedListStyle: orderedListStyle,
+      paragraphStyle: paragraphStyle,
+      tableStyle: tableStyle,
+      inlineStyle: inlineStyle,
+      textContextMenu: textContextMenu,
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing,
+      regexHighlights: value,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
+    )
+  }
+
+  /// Returns a copy with quote highlight styling replaced.
+  public func withQuoteHighlightStyle(font: UIFont, color: Color) -> MarkdownRenderConfig {
+    MarkdownRenderConfig(
+      shouldAnimateText: shouldAnimateText,
+      blockQuoteStyle: blockQuoteStyle,
+      headingStyle: headingStyle,
+      orderedListStyle: orderedListStyle,
+      paragraphStyle: paragraphStyle,
+      tableStyle: tableStyle,
+      inlineStyle: inlineStyle,
+      textContextMenu: textContextMenu,
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: font,
+      quoteHighlightColor: color,
+      imageRenderer: imageRenderer,
+      reservedImageAspectRatio: reservedImageAspectRatio
+    )
+  }
+
+  /// Returns a copy with image rendering configuration replaced.
+  public func withImageRenderer(
+    value: MarkdownImageRenderer?,
+    reservedAspectRatio: CGFloat? = nil
+  ) -> MarkdownRenderConfig {
+    MarkdownRenderConfig(
+      shouldAnimateText: shouldAnimateText,
+      blockQuoteStyle: blockQuoteStyle,
+      headingStyle: headingStyle,
+      orderedListStyle: orderedListStyle,
+      paragraphStyle: paragraphStyle,
+      tableStyle: tableStyle,
+      inlineStyle: inlineStyle,
+      textContextMenu: textContextMenu,
+      citationConfig: citationConfig,
+      blockSpacing: blockSpacing,
+      regexHighlights: regexHighlights,
+      quoteHighlightFont: quoteHighlightFont,
+      quoteHighlightColor: quoteHighlightColor,
+      imageRenderer: value,
+      reservedImageAspectRatio: reservedAspectRatio ?? reservedImageAspectRatio
     )
   }
 }

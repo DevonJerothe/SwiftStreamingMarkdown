@@ -12,6 +12,12 @@ extension Markdown.Document {
   func convert(with config: MarkdownRenderConfig) -> [MarkdownRenderable] {
     return self
       .blockConvertibleChildren
-      .map { $0.convert(attributeContainer: NSAttributeContainer(), config: config) }
+      .flatMap { block in
+        if let paragraph = block as? Paragraph {
+          return paragraph.convertRenderables(attributeContainer: NSAttributeContainer(), config: config)
+        }
+
+        return [block.convert(attributeContainer: NSAttributeContainer(), config: config)]
+      }
   }
 }
